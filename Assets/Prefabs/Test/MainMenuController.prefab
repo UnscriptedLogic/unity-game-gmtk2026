@@ -10,9 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 3994450793704753277}
   - component: {fileID: 2963836078990424049}
-  - component: {fileID: -2292238841866989406}
+  - component: {fileID: -1768720700406706816}
   m_Layer: 0
-  m_Name: PlayerController
+  m_Name: MainMenuController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2177371060
+  GlobalObjectIdHash: 1120079917
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -59,7 +59,7 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
---- !u!114 &-2292238841866989406
+--- !u!114 &-1768720700406706816
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -68,8 +68,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 8165571762057020146}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 81662f72d991421199ab8fe55294ee1c, type: 3}
+  m_Script: {fileID: 11500000, guid: d00a213e5dd6bcc4ba8ed4722e1baabe, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::FrameworkTest.UTestFrameworkPlayerController
-  ShowTopMostFoldoutHeaderGroup: 1
-  inputActionAsset: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  m_EditorClassIdentifier: Assembly-CSharp::UTestFrameworkMainMenuPlayerController

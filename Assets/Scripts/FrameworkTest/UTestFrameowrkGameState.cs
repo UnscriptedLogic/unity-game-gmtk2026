@@ -1,7 +1,7 @@
 using Framework;
 using UnityEngine;
 
-public class UTestFrameowrkGameState : UGameState
+public class UTestFrameworkGameState : UGameState
 {
 
 }

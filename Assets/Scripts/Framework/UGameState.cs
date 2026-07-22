@@ -7,6 +7,8 @@ namespace Framework
 {
     public abstract class UGameState : NetworkBehaviour
     {
+        public static event Action<UGameState> GameStateInitialized;
+
         public struct ConnectedPlayerState : INetworkSerializeByMemcpy, IEquatable<ConnectedPlayerState>
         {
             public ulong ClientId;
@@ -39,7 +41,17 @@ namespace Framework
 
         public static UGameState Instance { get; private set; }
 
+        private readonly NetworkVariable<bool> frameworkInitialized =
+            new NetworkVariable<bool>(
+                false,
+                NetworkVariableReadPermission.Everyone,
+                NetworkVariableWritePermission.Server);
+
         private readonly NetworkList<ConnectedPlayerState> connectedPlayers = new();
+
+        private bool hasRaisedGameStateInitialized;
+
+        public bool IsFrameworkInitialized => IsSpawned && frameworkInitialized.Value;
 
         public NetworkList<ConnectedPlayerState> ConnectedPlayers => connectedPlayers;
 
@@ -56,14 +68,56 @@ namespace Framework
             Instance = this;
         }
 
+        public override void OnNetworkSpawn()
+        {
+            base.OnNetworkSpawn();
+            frameworkInitialized.OnValueChanged += HandleFrameworkInitializedChanged;
+
+            if (frameworkInitialized.Value)
+            {
+                RaiseGameStateInitialized();
+            }
+        }
+
+        public override void OnNetworkDespawn()
+        {
+            frameworkInitialized.OnValueChanged -= HandleFrameworkInitializedChanged;
+            base.OnNetworkDespawn();
+        }
+
         public override void OnDestroy()
         {
             if (Instance == this)
             {
                 Instance = null;
+                GameStateInitialized = null;
             }
 
             base.OnDestroy();
+        }
+
+        public static bool TryGetInitializedGameState(out UGameState gameState)
+        {
+            gameState = Instance;
+            return gameState != null && gameState.IsFrameworkInitialized;
+        }
+
+        public bool SetFrameworkInitialized()
+        {
+            if (!IsServer)
+            {
+                Debug.LogWarning($"Only the server can initialize {nameof(UGameState)}.");
+                return false;
+            }
+
+            if (frameworkInitialized.Value)
+            {
+                return true;
+            }
+
+            frameworkInitialized.Value = true;
+            RaiseGameStateInitialized();
+            return true;
         }
 
         public void AddOrUpdateConnectedPlayer(ulong clientId, NetworkObject playerObject)
@@ -220,6 +274,25 @@ namespace Framework
             return activeNetworkManager != null
                 && activeNetworkManager.SpawnManager != null
                 && activeNetworkManager.SpawnManager.SpawnedObjects.TryGetValue(networkObjectId, out networkObject);
+        }
+
+        private void HandleFrameworkInitializedChanged(bool previousValue, bool newValue)
+        {
+            if (newValue)
+            {
+                RaiseGameStateInitialized();
+            }
+        }
+
+        private void RaiseGameStateInitialized()
+        {
+            if (hasRaisedGameStateInitialized)
+            {
+                return;
+            }
+
+            hasRaisedGameStateInitialized = true;
+            GameStateInitialized?.Invoke(this);
         }
     }
 }
