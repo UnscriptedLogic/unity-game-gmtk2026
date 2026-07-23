@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 7077534811814576535}
   - component: {fileID: -533072651120115110}
   - component: {fileID: 1542359330203789461}
+  - component: {fileID: 5645766751490995712}
   m_Layer: 0
   m_Name: PlayerPawn
   m_TagString: Untagged
@@ -77,6 +78,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FrameworkTest.UTestFrameworkPlayerPawn
   ShowTopMostFoldoutHeaderGroup: 1
+  bombArmTime: 3
+  playerWidgetPrefab: {fileID: 5095112658182542947, guid: 867bc467c219dc043983b81f9ac012dc, type: 3}
 --- !u!143 &3679541262606841093
 CharacterController:
   m_ObjectHideFlags: 0
@@ -142,7 +145,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.Multiplayer.Tools.NetworkSimulator.Runtime::Unity.Multiplayer.Tools.NetworkSimulator.Runtime.NetworkSimulator
   m_PresetAsset: {fileID: 0}
   m_PresetReference:
-    rid: 1323010979382428485
+    rid: 1323010981863096941
   m_Scenario:
     rid: -2
   m_IsScenarioSettingsFolded: 0
@@ -152,7 +155,7 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
-    - rid: 1323010979382428485
+    - rid: 1323010981863096941
       type: {class: NetworkSimulatorPreset, ns: Unity.Multiplayer.Tools.NetworkSimulator.Runtime, asm: Unity.Multiplayer.Tools.NetworkSimulator.Runtime}
       data:
         <Name>k__BackingField: Home Broadband with Congested Network
@@ -180,6 +183,27 @@ MonoBehaviour:
   followOffset: {x: 0, y: 0, z: -17}
   pullOnBeginPlay: 1
   onlyOwnerCanPull: 1
+--- !u!114 &5645766751490995712
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2321149387770120541}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 766748f851db409faa1ee51c6685b2e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Framework.Components.KnockbackBombComponent
+  ShowTopMostFoldoutHeaderGroup: 1
+  knockbackForce: 35
+  radius: 5
+  proxyPositionSyncPauseDuration: 0.5
+  scaleProxyPositionSyncPauseWithPing: 1
+  proxyPositionSyncPausePingScale: 0.5
+  minProxyPositionSyncPauseDuration: 0.15
+  maxProxyPositionSyncPauseDuration: 0.35
+  explosionEffectPrefab: {fileID: 1373403272517657661, guid: b92dd2fda69f30b42aa7b2910cc0cc02, type: 3}
 --- !u!1 &7198435662803577603
 GameObject:
   m_ObjectHideFlags: 0

@@ -110,6 +110,9 @@ namespace Framework.Components
         private int lastReceivedServerTick = -1;
         private CharacterMoveState proxyTargetState;
         private bool hasProxyTargetState;
+        private CharacterMoveState deferredProxyTargetState;
+        private bool hasDeferredProxyTargetState;
+        private float proxySyncSuppressedUntil;
 
         public Vector3 Velocity => velocity;
 
@@ -219,7 +222,20 @@ namespace Framework.Components
 
         protected override void Tick(float deltaTime)
         {
-            if (IsSpawned && !IsOwner && hasProxyTargetState)
+            if (!IsSpawned || IsOwner)
+            {
+                return;
+            }
+
+            if (IsProxySyncSuppressed)
+            {
+                SimulateProxyMove(deltaTime);
+                return;
+            }
+
+            ApplyDeferredProxyTargetState();
+
+            if (hasProxyTargetState)
             {
                 transform.position = Vector3.Lerp(
                     transform.position,
@@ -350,10 +366,14 @@ namespace Framework.Components
                 return;
             }
 
-            proxyTargetState = newState;
-            hasProxyTargetState = true;
-            velocity = newState.Velocity;
-            isGrounded = newState.IsGrounded;
+            if (IsProxySyncSuppressed)
+            {
+                deferredProxyTargetState = newState;
+                hasDeferredProxyTargetState = true;
+                return;
+            }
+
+            ApplyProxyTargetState(newState);
         }
 
         private void ReconcileOwner(CharacterMoveState authoritativeState)
@@ -427,6 +447,8 @@ namespace Framework.Components
             lastProcessedServerTick = -1;
             lastReceivedServerTick = -1;
             hasProxyTargetState = false;
+            hasDeferredProxyTargetState = false;
+            proxySyncSuppressedUntil = 0f;
             velocity = Vector3.zero;
             isGrounded = characterController != null && characterController.isGrounded;
             AllocatePredictionBuffers();
@@ -435,6 +457,67 @@ namespace Framework.Components
         private int BufferIndex(int tick)
         {
             return tick % predictionBufferSize;
+        }
+
+        public void AddKnockback(Vector3 knockbackForce)
+        {
+            AddKnockback(knockbackForce, 0f);
+        }
+
+        public void AddKnockback(Vector3 knockbackForce, float proxySyncSuppressionDuration)
+        {
+            velocity += knockbackForce;
+
+            if (proxySyncSuppressionDuration > 0f)
+            {
+                SuppressProxySync(proxySyncSuppressionDuration);
+            }
+        }
+
+        public void SuppressProxySync(float duration)
+        {
+            if (duration <= 0f || !IsSpawned || IsServer || IsOwner)
+            {
+                return;
+            }
+
+            proxySyncSuppressedUntil = Mathf.Max(proxySyncSuppressedUntil, Time.time + duration);
+        }
+
+        private bool IsProxySyncSuppressed => Time.time < proxySyncSuppressedUntil;
+
+        private void SimulateProxyMove(float deltaTime)
+        {
+            CharacterMoveInput proxyInput = new CharacterMoveInput
+            {
+                Tick = -1,
+                DeltaTime = deltaTime,
+                MoveX = 0f,
+                MoveY = 0f,
+                ControlYaw = controlYaw,
+                JumpPressed = false
+            };
+
+            SimulateMove(proxyInput);
+        }
+
+        private void ApplyDeferredProxyTargetState()
+        {
+            if (!hasDeferredProxyTargetState)
+            {
+                return;
+            }
+
+            ApplyProxyTargetState(deferredProxyTargetState);
+            hasDeferredProxyTargetState = false;
+        }
+
+        private void ApplyProxyTargetState(CharacterMoveState state)
+        {
+            proxyTargetState = state;
+            hasProxyTargetState = true;
+            velocity = state.Velocity;
+            isGrounded = state.IsGrounded;
         }
     }
 }

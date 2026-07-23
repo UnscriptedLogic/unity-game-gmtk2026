@@ -9,6 +9,8 @@ namespace FrameworkTest
     {
         [SerializeField] private InputActionAsset inputActionAsset;
         
+        private UTestFrameworkPlayerPawn _playerPawn;
+        
         protected override void BeginPlay()
         {
             base.BeginPlay();
@@ -18,14 +20,41 @@ namespace FrameworkTest
             inputActionAsset["Move"].canceled += OnMovePerformed;
             
             inputActionAsset["Jump"].performed += OnJumpPerformed;
+
+            inputActionAsset["Interact"].performed += OnInteractPerformed;
+        }
+
+        protected override void OnPossess(UPawn pawn)
+        {
+            base.OnPossess(pawn);
+            
+            _playerPawn = pawn as UTestFrameworkPlayerPawn;
+            _playerPawn.BombArmTimer.OnValueChanged += OnBombTimerChanged;
+        }
+
+        private void OnBombTimerChanged(float previousValue, float newValue)
+        {
+            if (newValue <= 0.1f)
+            {
+                if (!IsServer) return;
+                
+                _playerPawn.DoKnockbackServerRpc();
+            }
+        }
+
+        private void OnInteractPerformed(InputAction.CallbackContext obj)
+        {
+            if (_playerPawn)
+            {
+                _playerPawn.OnInteract();
+            }
         }
 
         private void OnJumpPerformed(InputAction.CallbackContext obj)
         {
-            if (HasPawn)
+            if (_playerPawn)
             {
-                Pawn.TryGetComponent(out CharacterMovementComponent component);
-                component.Jump();
+                _playerPawn.OnJump();
             }
         }
 
@@ -33,15 +62,11 @@ namespace FrameworkTest
         {
             Vector2 moveInput = obj.ReadValue<Vector2>();
             
-            //2D movement only
             moveInput.y = 0f;
 
-            if (HasPawn)
+            if (_playerPawn)
             {
-                if (Pawn.TryGetComponent(out CharacterMovementComponent component))
-                {
-                    component.SetMovementInput(moveInput);
-                }
+                _playerPawn.OnMove(moveInput);
             }
         }
     }
