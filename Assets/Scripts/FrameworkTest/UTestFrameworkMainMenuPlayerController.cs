@@ -3,15 +3,20 @@ using UnityEngine;
 
 public class UTestFrameworkMainMenuPlayerController : UController
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    [SerializeField] private MainMenuWidget mainMenuWidgetPrefab;
+    
+    private MainMenuWidget mainMenuWidget;
+
+    protected override void BeginPlay()
     {
+        base.BeginPlay();
         
+        mainMenuWidget = Instantiate(mainMenuWidgetPrefab);
+        mainMenuWidget.OnClientButtonClickedEvent += OnClientButtonClicked;
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnClientButtonClicked()
     {
-        
+        GameMode.NetworkManager.StartClient();
     }
 }

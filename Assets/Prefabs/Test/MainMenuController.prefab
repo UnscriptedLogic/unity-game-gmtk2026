@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1120079917
+  GlobalObjectIdHash: 3298178304
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -71,3 +71,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d00a213e5dd6bcc4ba8ed4722e1baabe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UTestFrameworkMainMenuPlayerController
+  ShowTopMostFoldoutHeaderGroup: 1
+  mainMenuWidgetPrefab: {fileID: 5831638105045322147, guid: f791cf16663280043ae73a2b10b9dc92, type: 3}

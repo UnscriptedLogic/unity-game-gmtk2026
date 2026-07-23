@@ -319,7 +319,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UTestFrameworkMainMenuGameMode
   ShowTopMostFoldoutHeaderGroup: 1
-  defaultPawnPrefab: {fileID: 142515426494640745, guid: 3a79a386e5f0acf49b87405301ab391c, type: 3}
+  defaultPawnPrefab: {fileID: 866636216006982900, guid: 3a27797a77635a348a240328bf39612b, type: 3}
   defaultPawnSpawnPoint: {fileID: 243420069}
 --- !u!114 &243420072
 MonoBehaviour:

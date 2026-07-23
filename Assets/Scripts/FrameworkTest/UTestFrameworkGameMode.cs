@@ -9,10 +9,6 @@ namespace FrameworkTest
         protected override async void Start()
         {
             base.Start();
-            
-            await Task.Delay(5000);
-
-            NetworkManager.StartClient();
         }
     }
 }
