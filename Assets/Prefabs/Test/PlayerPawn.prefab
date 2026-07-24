@@ -50,7 +50,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 3594595452
+  GlobalObjectIdHash: 1631809756
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -144,7 +144,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Framework.Components.CameraMagnetComponent
   ShowTopMostFoldoutHeaderGroup: 1
   targetGameObject: {fileID: 2321149387770120541}
-  followOffset: {x: 0, y: 0, z: -17}
+  followOffset: {x: 0, y: 3, z: -17}
   pullOnBeginPlay: 1
   onlyOwnerCanPull: 1
 --- !u!114 &5645766751490995712

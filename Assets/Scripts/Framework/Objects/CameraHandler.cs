@@ -34,7 +34,7 @@ namespace Framework.Objects
             Instance = this;
         }
 
-        private void LateUpdate()
+        private void Update()
         {
             PruneInvalidMagnets();
 
