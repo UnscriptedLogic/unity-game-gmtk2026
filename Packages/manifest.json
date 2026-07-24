@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.edgegap.unity-servers-plugin": "https://github.com/edgegap/edgegap-unity-plugin.git",
     "com.unity.ai.navigation": "2.0.12",
     "com.unity.cinemachine": "3.1.7",
     "com.unity.collab-proxy": "2.12.4",
@@ -13,10 +14,13 @@
     "com.unity.multiplayer.tools": "2.2.9",
     "com.unity.netcode.gameobjects": "2.13.0",
     "com.unity.render-pipelines.universal": "17.4.0",
+    "com.unity.sdk.linux-arm64": "1.1.0",
+    "com.unity.sdk.linux-x86_64": "1.1.0",
     "com.unity.services.multiplayer": "2.3.0",
     "com.unity.services.vivox": "16.11.0",
     "com.unity.test-framework": "1.6.0",
     "com.unity.timeline": "1.8.12",
+    "com.unity.toolchain.win-x86_64-linux": "1.1.0",
     "com.unity.ugui": "2.0.0",
     "com.unity.modules.accessibility": "1.0.0",
     "com.unity.modules.adaptiveperformance": "1.0.0",

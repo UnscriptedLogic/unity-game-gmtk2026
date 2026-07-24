@@ -22,6 +22,15 @@ namespace FrameworkTest
             inputActionAsset["Jump"].performed += OnJumpPerformed;
 
             inputActionAsset["Interact"].performed += OnInteractPerformed;
+            inputActionAsset["ArmBomb"].performed += OnArmBombPerformed;
+        }
+
+        private void OnArmBombPerformed(InputAction.CallbackContext obj)
+        {
+            if (_playerPawn)
+            {
+                _playerPawn.OnArmBomb();
+            }
         }
 
         protected override void OnPossess(UPawn pawn)
@@ -46,7 +55,7 @@ namespace FrameworkTest
         {
             if (_playerPawn)
             {
-                _playerPawn.OnInteract();
+
             }
         }
 

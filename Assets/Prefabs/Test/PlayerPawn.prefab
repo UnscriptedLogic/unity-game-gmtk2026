@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 142515426494640745}
   - component: {fileID: 3679541262606841093}
   - component: {fileID: 7077534811814576535}
-  - component: {fileID: -533072651120115110}
   - component: {fileID: 1542359330203789461}
   - component: {fileID: 5645766751490995712}
   m_Layer: 0
@@ -118,7 +117,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Framework.Components.CharacterMovementComponent
   ShowTopMostFoldoutHeaderGroup: 1
-  maxWalkSpeed: 8
+  maxWalkSpeed: 12
   acceleration: 48
   brakingDecelerationWalking: 64
   airControl: 0.5
@@ -131,41 +130,6 @@ MonoBehaviour:
   reconciliationPositionTolerance: 0.08
   reconciliationVelocityTolerance: 0.15
   proxyInterpolationSpeed: 18
---- !u!114 &-533072651120115110
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2321149387770120541}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 98d9db9626104da59357651088226725, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Multiplayer.Tools.NetworkSimulator.Runtime::Unity.Multiplayer.Tools.NetworkSimulator.Runtime.NetworkSimulator
-  m_PresetAsset: {fileID: 0}
-  m_PresetReference:
-    rid: 1323010981863096941
-  m_Scenario:
-    rid: -2
-  m_IsScenarioSettingsFolded: 0
-  AutoRunScenario: 0
-  references:
-    version: 2
-    RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
-    - rid: 1323010981863096941
-      type: {class: NetworkSimulatorPreset, ns: Unity.Multiplayer.Tools.NetworkSimulator.Runtime, asm: Unity.Multiplayer.Tools.NetworkSimulator.Runtime}
-      data:
-        <Name>k__BackingField: Home Broadband with Congested Network
-        <Description>k__BackingField: Desktop and console platforms trough congested
-          networks (multiple downloads or streaming already using the network's maximum
-          capacity). Medium ping, bad jitter and little packet loss.
-        <PacketDelayMs>k__BackingField: 50
-        <PacketJitterMs>k__BackingField: 50
-        <PacketLossInterval>k__BackingField: 0
-        <PacketLossPercent>k__BackingField: 1
 --- !u!114 &1542359330203789461
 MonoBehaviour:
   m_ObjectHideFlags: 0
