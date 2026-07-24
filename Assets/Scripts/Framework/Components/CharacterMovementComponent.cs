@@ -6,6 +6,7 @@ namespace Framework.Components
 {
     [DisallowMultipleComponent]
     [RequireComponent(typeof(CharacterController))]
+    [DefaultExecutionOrder(-50)]
     public class CharacterMovementComponent : UObjectComponent
     {
         public struct CharacterMoveInput : INetworkSerializeByMemcpy, IEquatable<CharacterMoveInput>
@@ -91,6 +92,14 @@ namespace Framework.Components
         [SerializeField] private float reconciliationVelocityTolerance = 0.15f;
         [SerializeField] private float proxyInterpolationSpeed = 18f;
 
+        [Header("Smoothing")]
+        [SerializeField] private bool interpolateOwnerMovement = true;
+        [SerializeField] private float ownerInterpolationSnapDistance = 2f;
+
+        [Header("Controller Stability")]
+        [SerializeField] private float minimumControllerSkinWidth = 0.01f;
+        [SerializeField] private float minimumControllerSkinWidthRadiusRatio = 0.08f;
+
         private readonly NetworkVariable<CharacterMoveState> authoritativeState =
             new NetworkVariable<CharacterMoveState>(
                 default,
@@ -113,6 +122,10 @@ namespace Framework.Components
         private CharacterMoveState deferredProxyTargetState;
         private bool hasDeferredProxyTargetState;
         private float proxySyncSuppressedUntil;
+        private Vector3 previousFixedPosition;
+        private Vector3 currentFixedPosition;
+        private bool hasFixedPositionSamples;
+        private bool hasInterpolatedTransform;
 
         public Vector3 Velocity => velocity;
 
@@ -167,7 +180,24 @@ namespace Framework.Components
         {
             base.Awake();
             characterController = GetComponent<CharacterController>();
+            ConfigureCharacterController();
             AllocatePredictionBuffers();
+        }
+
+        private void OnValidate()
+        {
+            predictionBufferSize = Mathf.Max(32, predictionBufferSize);
+            reconciliationPositionTolerance = Mathf.Max(0f, reconciliationPositionTolerance);
+            reconciliationVelocityTolerance = Mathf.Max(0f, reconciliationVelocityTolerance);
+            proxyInterpolationSpeed = Mathf.Max(0f, proxyInterpolationSpeed);
+            ownerInterpolationSnapDistance = Mathf.Max(0f, ownerInterpolationSnapDistance);
+            minimumControllerSkinWidth = Mathf.Max(0f, minimumControllerSkinWidth);
+            minimumControllerSkinWidthRadiusRatio = Mathf.Max(0f, minimumControllerSkinWidthRadiusRatio);
+
+            if (characterController == null)
+            {
+                characterController = GetComponent<CharacterController>();
+            }
         }
 
         public override void OnNetworkSpawn()
@@ -199,11 +229,16 @@ namespace Framework.Components
                 return;
             }
 
+            RestoreSimulationPosition();
+
             if (IsOwner)
             {
                 CharacterMoveInput input = CreateMoveInput();
                 StoreInput(input);
+                Vector3 positionBeforeMove = transform.position;
+
                 SimulateMove(input);
+                StoreFixedPositionSample(positionBeforeMove, transform.position);
                 StoreState(CaptureState(input.Tick));
 
                 if (IsServer)
@@ -222,8 +257,14 @@ namespace Framework.Components
 
         protected override void Tick(float deltaTime)
         {
-            if (!IsSpawned || IsOwner)
+            if (!IsSpawned)
             {
+                return;
+            }
+
+            if (IsOwner)
+            {
+                ApplyOwnerRenderInterpolation();
                 return;
             }
 
@@ -413,6 +454,8 @@ namespace Framework.Components
                 SimulateMove(replayInput);
                 StoreState(CaptureState(replayTick));
             }
+
+            ResetFixedPositionSamples(transform.position);
         }
 
         private void ApplyState(CharacterMoveState state)
@@ -427,6 +470,7 @@ namespace Framework.Components
             transform.position = state.Position;
             velocity = state.Velocity;
             isGrounded = state.IsGrounded;
+            ResetFixedPositionSamples(state.Position);
 
             if (controllerWasEnabled)
             {
@@ -451,6 +495,7 @@ namespace Framework.Components
             proxySyncSuppressedUntil = 0f;
             velocity = Vector3.zero;
             isGrounded = characterController != null && characterController.isGrounded;
+            ResetFixedPositionSamples(transform.position);
             AllocatePredictionBuffers();
         }
 
@@ -518,6 +563,78 @@ namespace Framework.Components
             hasProxyTargetState = true;
             velocity = state.Velocity;
             isGrounded = state.IsGrounded;
+        }
+
+        private void ConfigureCharacterController()
+        {
+            if (characterController == null)
+            {
+                return;
+            }
+
+            float minimumStableSkinWidth = Mathf.Max(
+                minimumControllerSkinWidth,
+                characterController.radius * minimumControllerSkinWidthRadiusRatio);
+
+            if (characterController.skinWidth < minimumStableSkinWidth)
+            {
+                characterController.skinWidth = minimumStableSkinWidth;
+            }
+
+            if (characterController.minMoveDistance > 0f)
+            {
+                characterController.minMoveDistance = 0f;
+            }
+        }
+
+        private void ApplyOwnerRenderInterpolation()
+        {
+            if (!interpolateOwnerMovement || !hasFixedPositionSamples || Time.fixedDeltaTime <= 0f)
+            {
+                return;
+            }
+
+            if ((currentFixedPosition - previousFixedPosition).sqrMagnitude <= Mathf.Epsilon)
+            {
+                RestoreSimulationPosition();
+                return;
+            }
+
+            float interpolationAlpha = Mathf.Clamp01((Time.time - Time.fixedTime) / Time.fixedDeltaTime);
+            transform.position = Vector3.Lerp(previousFixedPosition, currentFixedPosition, interpolationAlpha);
+            hasInterpolatedTransform = true;
+        }
+
+        private void RestoreSimulationPosition()
+        {
+            if (!hasInterpolatedTransform)
+            {
+                return;
+            }
+
+            transform.position = currentFixedPosition;
+            hasInterpolatedTransform = false;
+        }
+
+        private void StoreFixedPositionSample(Vector3 previousPosition, Vector3 newPosition)
+        {
+            float snapDistanceSqr = ownerInterpolationSnapDistance * ownerInterpolationSnapDistance;
+            bool shouldSnap = ownerInterpolationSnapDistance <= 0f
+                || hasFixedPositionSamples
+                && (newPosition - previousPosition).sqrMagnitude > snapDistanceSqr;
+
+            previousFixedPosition = shouldSnap ? newPosition : previousPosition;
+            currentFixedPosition = newPosition;
+            hasFixedPositionSamples = true;
+            hasInterpolatedTransform = false;
+        }
+
+        private void ResetFixedPositionSamples(Vector3 position)
+        {
+            previousFixedPosition = position;
+            currentFixedPosition = position;
+            hasFixedPositionSamples = true;
+            hasInterpolatedTransform = false;
         }
     }
 }
